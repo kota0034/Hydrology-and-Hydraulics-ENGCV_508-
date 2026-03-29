@@ -1,1 +1,42 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import gumbel_r
 
+# ----------------------------
+# Step 1: 10 years of annual max rainfall (mm)
+# ----------------------------
+rainfall = np.array([120, 135, 150, 140, 160, 170, 155, 180, 175, 165])
+
+# ----------------------------
+# Step 2: Fit Gumbel distribution
+# ----------------------------
+# gumbel_r.fit returns location and scale parameters
+loc, scale = gumbel_r.fit(rainfall)
+
+# ----------------------------
+# Step 3: Define return periods (years)
+# ----------------------------
+return_periods = np.array([2, 5, 10, 20, 50, 100])  # example periods
+
+# Convert return period to exceedance probability
+prob = 1 / return_periods
+
+# Calculate rainfall for each return period using Gumbel
+rainfall_estimates = gumbel_r.ppf(1 - prob, loc=loc, scale=scale)
+
+# ----------------------------
+# Step 4: Plot the curve
+# ----------------------------
+plt.figure(figsize=(8,5))
+plt.plot(return_periods, rainfall_estimates, marker='o', linestyle='-', color='b')
+plt.xlabel("Return Period (years)")
+plt.ylabel("Rainfall (mm)")
+plt.title("Rainfall vs Return Period")
+plt.xscale('log')  # log scale is common for return period plots
+plt.grid(True, which="both", ls="--")
+plt.show()
+
+# ----------------------------
+# Step 5: Print 50-year rainfall estimate
+# ----------------------------
+print(f"Estimated rainfall for 50-year return period: {gumbel_r.ppf(1 - 1/50, loc=loc, scale=scale):.2f} mm")
